@@ -26,6 +26,9 @@ interface BlueprintRow {
 }
 
 export default function Home() {
+  const [showGuideModal, setShowGuideModal] = useState(false);
+const [guideSection, setGuideSection] = useState("intro");
+
   const [data, setData] = useState<BlueprintRow[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -106,45 +109,62 @@ export default function Home() {
             <img src="/logo.png" alt="Logo" style={{ height: "40px" }} />
             <h1>Blueprint Labs By: TrashedPanda</h1>
           </div>
-          <div>
-            <button className="btn" onClick={() => setShowCredits(true)}>
-              Credits
-            </button>
-          </div>
+        <div className="header-buttons">
+  <button className="btn" onClick={() => setShowCredits(true)}>
+    Credits
+  </button>
+  <button className="btn" onClick={() => setShowGuideModal(true)}>
+    How to Pull Blueprints
+  </button>
+</div>
         </header>
 
         <div className="card">
           <strong>Last Updated:</strong>
           <strong> Site is still in development, please be patient as we update</strong>
         </div>
+        {/*Filters*/}
+<div className="filters">
+  <div className="filter-group full-width">
+    <input
+      id="search"
+      type="text"
+      placeholder="Search for blueprints or weapons..."
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+    />
+  </div>
 
-        {/* Filters */}
-        <div className="filters">
-          <input
-            type="text"
-            placeholder="Search blueprints or weapons..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            <option>All</option>
-            <option>RELEASED</option>
-            <option>UNRELEASED</option>
-            <option>NOTHING</option>
-          </select>
-          <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-            <option>All</option>
-            {Object.values(categoryMap).map((cat) => (
-              <option key={cat}>{cat}</option>
-            ))}
-          </select>
-          <select value={poolFilter} onChange={(e) => setPoolFilter(e.target.value)}>
-            <option>All</option>
-            {poolOptions.map((pool) => (
-              <option key={pool}>{pool}</option>
-            ))}
-          </select>
-        </div>
+  <div className="filter-group">
+    <label htmlFor="status">Status Filter</label>
+    <select id="status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+      <option>All</option>
+      <option>RELEASED</option>
+      <option>UNRELEASED</option>
+      <option>NOTHING</option>
+    </select>
+  </div>
+
+  <div className="filter-group">
+    <label htmlFor="category">Category Filter</label>
+    <select id="category" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+      <option>All</option>
+      {Object.values(categoryMap).map((cat) => (
+        <option key={cat}>{cat}</option>
+      ))}
+    </select>
+  </div>
+
+  <div className="filter-group">
+    <label htmlFor="pool">Pool Filter</label>
+    <select id="pool" value={poolFilter} onChange={(e) => setPoolFilter(e.target.value)}>
+      <option>All</option>
+      {poolOptions.map((pool) => (
+        <option key={pool}>{pool}</option>
+      ))}
+    </select>
+  </div>
+</div>
 
         {/* Desktop Table */}
         <div className="table-wrapper desktop-only">
@@ -231,29 +251,130 @@ export default function Home() {
         </div>
       )}
 
-      {/* Credits Modal */}
-      {showCredits && (
-        <div className="modal" onClick={() => setShowCredits(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2 style={{ marginBottom: "1rem" }}>Credits</h2>
-            <p style={{ marginBottom: "1rem" }}>
-              BlueprintLabs is a blueprint pool website for Call of Duty weapons.
-              All data is sourced from community contributions.
-            </p>
-            <ul style={{ listStyle: "none", paddingLeft: 0 }}>
-              <li><strong>Design & Development:</strong> TrashedPanda</li>
-              <li><strong>Data Structuring:</strong> Data sourced by Parsedgod</li>
-              <li><strong>UI/UX:</strong> Inspired by Black Ops 6 Theme</li>
-              <li><strong>Assets:</strong> All logos, videos, and images are property of their respective owners</li>
-            </ul>
-            <div style={{ textAlign: "center", marginTop: "1rem" }}>
-              <button className="btn" onClick={() => setShowCredits(false)}>
-                Close
-              </button>
-            </div>
-          </div>
+  {/* Credits Modal */}
+{showCredits && (
+  <div className="modal" onClick={() => setShowCredits(false)}>
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <h2 style={{ marginBottom: "1rem" }}>Credits</h2>
+      <p style={{ marginBottom: "1rem" }}>
+        BlueprintLabs is a blueprint pool website for Call of Duty weapons.
+        All data is sourced from community contributions.
+      </p>
+      <ul style={{ listStyle: "none", paddingLeft: 0 }}>
+        <li><strong>Design & Development:</strong> TrashedPanda</li>
+        <li><strong>Data Structuring:</strong> Data sourced by Parsedgod</li>
+        <li><strong>UI/UX:</strong> Inspired by Black Ops 6 Theme</li>
+        <li><strong>Assets:</strong> All logos, videos, and images are property of their respective owners</li>
+      </ul>
+      <div style={{ textAlign: "center", marginTop: "1rem" }}>
+        <button className="btn" onClick={() => setShowCredits(false)}>
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+{/* Guide Modal */}
+{showGuideModal && (
+  <div className="modal" onClick={() => setShowGuideModal(false)}>
+    <div
+      className="modal-content"
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        position: "relative",
+        padding: "1rem",
+        maxWidth: "600px",
+        fontSize: "0.9rem",
+      }}
+    >
+      {/* Close Button */}
+      <button
+        className="btn"
+        onClick={() => setShowGuideModal(false)}
+        style={{
+          position: "absolute",
+          top: "0.5rem",
+          right: "0.5rem",
+          padding: "0.25rem 0.5rem",
+          fontSize: "0.8rem",
+        }}
+      >
+        ✖
+      </button>
+
+      <h2 style={{ marginBottom: "0.5rem", fontSize: "1.2rem" }}>How to Pull Blueprints</h2>
+
+      {/* Section Buttons */}
+      <div
+        style={{
+          display: "flex",
+          gap: "0.25rem",
+          marginBottom: "0.5rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <button className="btn" onClick={() => setGuideSection("intro")}>
+          What is Blueprint Pulling?
+        </button>
+        <button className="btn" onClick={() => setGuideSection("zombies")}>
+          How to Pull in Zombies
+        </button>
+        <button className="btn" onClick={() => setGuideSection("mpwz")}>
+          How to Pull in MP/WZ
+        </button>
+      </div>
+
+      {/* Conditional Video Links */}
+      {guideSection === "zombies" && (
+        <div style={{ marginBottom: "0.5rem" }}>
+          <a
+            href="https://www.youtube.com/watch?v=AwFInwhDlus&t=746s"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#ffa500", textDecoration: "underline" }}
+          >
+            ▶ Watch Video (YouTube)
+          </a>
         </div>
       )}
+
+      {guideSection === "mpwz" && (
+        <div style={{ marginBottom: "0.5rem" }}>
+          <a
+            href="https://www.youtube.com/watch?v=Ou1VjCpFqM8&t"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#ffa500", textDecoration: "underline" }}
+          >
+            ▶ Watch Video (YouTube)
+          </a>
+        </div>
+      )}
+
+      {/* Section Content */}
+      <div style={{ marginBottom: "0.5rem", color: "#ccc" }}>
+        {guideSection === "intro" && (
+          <p>
+            Blueprint pulling is the process of extracting weapon blueprints from loot pools, bundles, or in-game drops. It’s a way to unlock rare cosmetics and weapon variants without direct purchase.
+          </p>
+        )}
+        {guideSection === "zombies" && (
+          <p>
+            <strong>Forward video to 12:56 for Zombies Pulling Method</strong> 
+          </p>
+        )}
+        {guideSection === "mpwz" && (
+          <p>
+            <strong>In Multiplayer and Warzone, ACCOUNT MUST BE BROKEN, Foward to 1:32 to see how to break account.</strong>
+          </p>
+        )}
+      </div>
     </div>
+  </div>
+)}
+
+
+
+</div>
   );
 }

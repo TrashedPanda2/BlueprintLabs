@@ -145,3 +145,8 @@ th {
     display: block;
   }
 }
+.header-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
