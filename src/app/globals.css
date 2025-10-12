@@ -447,6 +447,12 @@ th {
     max-width: 48%;
     text-align: center;
   }
+  
+  /* NEW CLASS TO CENTER GUIDE BUTTONS */
+  .guide-buttons-mobile { 
+      justify-content: center;
+  }
+  /* END NEW CLASS */
 
   
   .filters {
