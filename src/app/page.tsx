@@ -1,4 +1,5 @@
 "use client";
+console.error(`Failed to load image: ${modalSrc}`);
 
 import { useEffect, useState } from "react";
 import Background from "./components/Background";
