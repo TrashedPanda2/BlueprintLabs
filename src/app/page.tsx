@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import VideoBackground from "./components/VideoBackground";
+import Background from "./components/Background";
 
 const categoryMap: Record<string, string> = {
   "0": "Assault Rifle",
@@ -111,7 +111,7 @@ useEffect(() => {
   );
   return (
     <div>
-      <VideoBackground />
+      <Background />
 {changelog.length > 0 && (
   <div
     style={{
