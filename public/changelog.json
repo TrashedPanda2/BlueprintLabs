@@ -20,5 +20,14 @@
       "Edited Version parse to fetch the latest entry instead of the first"
     ],
     "Author": "parsegod"
+  },
+   {
+    "version": "v1.2.2",
+    "date": "Oct 12, 2025",
+    "changes": [
+      "Updated Pool list to include S5 Reloaded Blueprints.",
+      "Updated Header of Page"
+    ],
+    "Author": "TrashedPanda2"
   }
 ]
