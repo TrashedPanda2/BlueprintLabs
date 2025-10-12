@@ -276,7 +276,7 @@ export default function Home() {
         <header>
           <div className="title-block">
             <img src="/logo.png" alt="Logo" style={{ height: "40px" }} />
-            <h1>Blueprint Labs By: TrashedPanda</h1>
+            <h1>Blueprint Labs By: TrashedPanda and Parsegod</h1>
           </div>
           <div className="header-buttons">
             <button className="btn" onClick={() => setShowCredits(true)}>
