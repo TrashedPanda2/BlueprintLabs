@@ -54,7 +54,7 @@ const [showUpdateLog, setShowUpdateLog] = useState(false);
         for (const bp of weapon.Blueprints) {
           if (!bp.Name || bp.Name === "NOTHING") continue;
           const weaponName = weapon.Name.toLowerCase().replace(/\s+/g, "-");
-          const imageBase = `/images/${weaponName}/${bp.Name}`;
+          const imageBase = `/images/${weaponName}/${blueprintFileName}`;
           rows.push({
             weapon: weapon.Name,
             category: categoryMap[weapon.Category],
