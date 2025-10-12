@@ -39,6 +39,8 @@ const [guideSection, setGuideSection] = useState("intro");
   const [modalImageBase, setModalImageBase] = useState<string | null>(null);
   const [modalSrc, setModalSrc] = useState<string>("");
   const [modalHasPreview, setModalHasPreview] = useState(true);
+const [changelog, setChangelog] = useState<{ version: string; date: string; changes: string[] }[]>([]);
+const [showUpdateLog, setShowUpdateLog] = useState(false);
 
   const extensions = [".jpg", ".jpeg", ".png"];
 
@@ -67,6 +69,14 @@ const [guideSection, setGuideSection] = useState("intro");
     };
     loadData();
   }, []);
+useEffect(() => {
+  const loadChangelog = async () => {
+    const res = await fetch("/changelog.json");
+    const json = await res.json();
+    setChangelog(json);
+  };
+  loadChangelog();
+}, []);
 
   const openPreview = (imageBase: string) => {
     setModalImageBase(imageBase);
@@ -102,9 +112,39 @@ const [guideSection, setGuideSection] = useState("intro");
   return (
     <div>
       <VideoBackground />
+{changelog.length > 0 && (
+  <div
+    style={{
+      position: "fixed",
+      top: "1rem",
+      left: "1rem",
+      display: "flex",
+      alignItems: "center",
+      gap: "0.5rem",
+      zIndex: 100,
+    }}
+  >
+    <span style={{ fontSize: "0.8rem", color: "#ffa500" }}>
+      Version: {changelog[0].version}
+    </span>
+    <div
+  onClick={() => setShowUpdateLog(true)}
+  style={{
+    width: "10px",
+    height: "10px",
+    borderRadius: "50%",
+    backgroundColor: "#ff8800",
+    animation: "pulse 1.5s infinite",
+    cursor: "pointer",
+  }}
+  title="View Update Log"
+/>
 
+  </div>
+)}
       <div className="container">
         <header>
+
           <div className="title-block">
             <img src="/logo.png" alt="Logo" style={{ height: "40px" }} />
             <h1>Blueprint Labs By: TrashedPanda</h1>
@@ -120,7 +160,6 @@ const [guideSection, setGuideSection] = useState("intro");
         </header>
 
         <div className="card">
-          <strong>Last Updated:</strong>
           <strong> Site is still in development, please be patient as we update</strong>
         </div>
         {/*Filters*/}
@@ -368,6 +407,52 @@ const [guideSection, setGuideSection] = useState("intro");
             <strong>In Multiplayer and Warzone, ACCOUNT MUST BE BROKEN, Foward to 1:32 to see how to break account.</strong>
           </p>
         )}
+      </div>
+    </div>
+  </div>
+)}
+{showUpdateLog && (
+  <div className="modal" onClick={() => setShowUpdateLog(false)}>
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <h2 style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        Update Log
+        {changelog.length > 0 && (
+          <div
+            style={{
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              backgroundColor: "#ff8800ff",
+              animation: "pulse 1.5s infinite",
+            }}
+            title="New updates available"
+          />
+        )}
+      </h2>
+      <div style={{ color: "#ccc" }}>
+        {changelog.length === 0 ? (
+          <p style={{ textAlign: "center", margin: "2rem 0" }}>
+            No updates yet. Stay tuned!
+          </p>
+        ) : (
+          changelog.map((entry, i) => (
+            <div key={i} style={{ marginBottom: "1rem" }}>
+              <h3 style={{ marginBottom: "0.25rem" }}>
+                {entry.version} — {entry.date}
+              </h3>
+              <ul style={{ paddingLeft: "1rem" }}>
+                {entry.changes.map((change, j) => (
+                  <li key={j}>{change}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        )}
+      </div>
+      <div style={{ textAlign: "center", marginTop: "1rem" }}>
+        <button className="btn" onClick={() => setShowUpdateLog(false)}>
+          Close
+        </button>
       </div>
     </div>
   </div>
