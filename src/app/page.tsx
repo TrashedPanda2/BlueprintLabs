@@ -1,5 +1,4 @@
 "use client";
-console.error(`Failed to load image: ${modalSrc}`);
 
 import { useEffect, useState } from "react";
 import Background from "./components/Background";
@@ -89,9 +88,13 @@ export default function Home() {
   };
 
   const handleModalImgError = () => {
+    
     if (!modalImageBase) return;
+    console.error(`Failed to load image: ${modalSrc}`);
+
     const currentIndex = extensions.findIndex(
       (ext) => modalSrc === `${modalImageBase}${ext}`
+      
     );
     const nextIndex = currentIndex + 1;
     if (nextIndex < extensions.length) {
