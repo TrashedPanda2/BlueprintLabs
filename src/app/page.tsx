@@ -55,10 +55,13 @@ export default function Home() {
       for (const weapon of json.Weapons) {
         for (const bp of weapon.Blueprints) {
           if (!bp.Name || bp.Name === "NOTHING") continue;
-          const weaponName = weapon.Name.toLowerCase().replace(/\s+/g, "-");
           
-          // FIX: Use encodeURIComponent to correctly URL-encode the blueprint name (e.g., convert "RAZOR BURN" to "RAZOR%20BURN")
+          // **FIX 1: Convert weapon name to uppercase and replace spaces with hyphens**
+          const weaponName = weapon.Name.toUpperCase().replace(/\s+/g, "-");
+          
+          // **FIX 2: Use encodeURIComponent to correctly URL-encode the blueprint name**
           const encodedBlueprintName = encodeURIComponent(bp.Name);
+
           const imageBase = `/images/${weaponName}/${encodedBlueprintName}`;
 
           rows.push({
