@@ -11,7 +11,30 @@ const useDebounce = (value: string, delay: number) => {
       setDebouncedValue(value);
     }, delay);
 
-    return () => {
+    return () => {[
+  {
+    "version": "v1.2.0",
+    "date": "Oct 11, 2025",
+    "changes": [
+      "Added Update Log for website",
+      "Added How to Guide for WZ and Zombies Pulling",
+      "Refined modal and table layout and added glow"
+    ],
+    "Author": "TrashedPanda2"
+  },
+  {
+    "version": "v1.2.8",
+    "date": "Oct 12, 2025",
+    "changes": [
+      "Updated UI For Desktop & Mobile.",
+      "Fixed image previews",
+      "Edited Credits",
+      "Added {Author} Section to change log",
+      "Edited Version parse to fetch the latest entry instead of the first"
+    ],
+    "Author": "parsegod"
+  }
+]arse
       clearTimeout(handler);
     };
   }, [value, delay]);
@@ -475,10 +498,10 @@ export default function Home() {
             </p>
             <ul style={{ listStyle: "none", paddingLeft: 0 }}>
               <li>
-                <strong>Design & Development:</strong> TrashedPanda & Parsegod
+                <strong>Design & Development:</strong> TrashedPanda & parsegod
               </li>
               <li>
-                <strong>Data Structuring:</strong> Data sourced by Parsegod
+                <strong>Data Structuring:</strong> Data sourced by parsegod
               </li>
               <li>
                 <strong>UI/UX:</strong> Inspired by Black Ops 6 Theme
