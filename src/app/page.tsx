@@ -205,7 +205,7 @@ useEffect(() => {
   </div>
 </div>
 
-        {/* Desktop Table */}
+        {/* Desktop Table Version */}
         <div className="table-wrapper desktop-only">
           <table>
             <thead>
@@ -244,7 +244,7 @@ useEffect(() => {
           </table>
         </div>
 
-        {/* Mobile Cards */}
+        {/* Mobile Table Version */}
         <div className="mobile-only">
           {filtered.map((row, i) => (
             <div key={i} className="card blueprint-card">
@@ -265,7 +265,7 @@ useEffect(() => {
           )}
         </div>
       </div>
-      {/* Image Modal */}
+      {/* Blueprint Preview Modal */}
       {modalImageBase && (
         <div className="modal" onClick={() => setModalImageBase(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -313,7 +313,7 @@ useEffect(() => {
     </div>
   </div>
 )}
-{/* Guide Modal */}
+{/* How to Blueprint Pull Modal */}
 {showGuideModal && (
   <div className="modal" onClick={() => setShowGuideModal(false)}>
     <div
@@ -326,7 +326,6 @@ useEffect(() => {
         fontSize: "0.9rem",
       }}
     >
-      {/* Close Button */}
       <button
         className="btn"
         onClick={() => setShowGuideModal(false)}
@@ -342,8 +341,6 @@ useEffect(() => {
       </button>
 
       <h2 style={{ marginBottom: "0.5rem", fontSize: "1.2rem" }}>How to Pull Blueprints</h2>
-
-      {/* Section Buttons */}
       <div
         style={{
           display: "flex",
@@ -363,7 +360,6 @@ useEffect(() => {
         </button>
       </div>
 
-      {/* Conditional Video Links */}
       {guideSection === "zombies" && (
         <div style={{ marginBottom: "0.5rem" }}>
           <a
@@ -390,7 +386,6 @@ useEffect(() => {
         </div>
       )}
 
-      {/* Section Content */}
       <div style={{ marginBottom: "0.5rem", color: "#ccc" }}>
         {guideSection === "intro" && (
           <p>
