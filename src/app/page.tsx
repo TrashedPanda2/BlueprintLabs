@@ -1,7 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Background from "./components/Background";
+// Import dynamic for client-only rendering
+import dynamic from 'next/dynamic'; 
+
+// Component defined inline (or ideally in a separate file)
+const BackgroundComponent = () => {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "#101010", // Very dark background
+        backgroundImage: 'radial-gradient(circle at center, rgba(30, 30, 30, 0.8), #101010 70%)',
+        backgroundAttachment: 'fixed',
+        zIndex: -1,
+      }}
+    />
+  );
+};
+
+// FIX: Use next/dynamic with ssr: false to ensure the Background component 
+// is never rendered on the server, eliminating a potential hydration mismatch source.
+const Background = dynamic(() => Promise.resolve(BackgroundComponent), {
+  ssr: false,
+  loading: () => null, // Optional: return null while loading on the client
+});
+
 
 const categoryMap: Record<string, string> = {
   "0": "Assault Rifle",
@@ -23,8 +51,6 @@ interface BlueprintRow {
   status: string;
   pool: string;
   imageBase: string;
-  // NEW: Track image existence status
-  hasImage: boolean; 
 }
 
 export default function Home() {
@@ -45,58 +71,35 @@ export default function Home() {
     { version: string; date: string; changes: string[] }[]
   >([]);
   const [showUpdateLog, setShowUpdateLog] = useState(false);
+  
+  // Removed isClient state and its useEffect, as the Background component 
+  // is now handled via dynamic import with ssr: false.
 
-  // Updated to only check for .jpg
-  const extensions = [".jpg"]; 
-
-  // NEW FUNCTION: Check if the .jpg image file exists on the server
-  const checkIfImageExists = async (imageBase: string): Promise<boolean> => {
-    const imageUrl = `${imageBase}${extensions[0]}`;
-    try {
-      const res = await fetch(imageUrl, { method: 'HEAD' });
-      // A 200 (OK) status means the image exists.
-      return res.ok;
-    } catch (error) {
-      // Treat any network or fetch error as the image not existing for the purpose of the UI
-      return false;
-    }
-  };
+  // Only look for .jpg extension.
+  const extensions = [".jpg"];
 
   useEffect(() => {
     const loadData = async () => {
       const res = await fetch("/weapons.json");
       const json = await res.json();
+      const rows: BlueprintRow[] = [];
 
-      // Use Promise.all to check all images concurrently for faster loading
-      const blueprintPromises = json.Weapons.flatMap((weapon: any) => 
-        weapon.Blueprints.map(async (bp: any) => {
-          if (!bp.Name || bp.Name === "NOTHING") return null;
-          
-          // Convert weapon name to uppercase and replace spaces with hyphens
-          const weaponName = weapon.Name.toUpperCase().replace(/\s+/g, "-");
-          
-          // Use encodeURIComponent to correctly URL-encode the blueprint name
-          const encodedBlueprintName = encodeURIComponent(bp.Name);
-
-          const imageBase = `/images/${weaponName}/${encodedBlueprintName}`;
-          
-          // Check image existence
-          const hasImage = await checkIfImageExists(imageBase);
-
-          return {
+      for (const weapon of json.Weapons) {
+        for (const bp of weapon.Blueprints) {
+          if (!bp.Name || bp.Name === "NOTHING") continue;
+          const weaponName = weapon.Name.toLowerCase().replace(/\s+/g, "-").toUpperCase();
+          const imageBase = `/images/${weaponName}/${bp.Name}`;
+          rows.push({
             weapon: weapon.Name,
             category: categoryMap[weapon.Category],
             blueprint: bp.Name,
             status: bp.status,
             pool: bp.Pool,
             imageBase,
-            hasImage, // Include image status
-          };
-        })
-      );
-      
-      const loadedBlueprints = await Promise.all(blueprintPromises);
-      setData(loadedBlueprints.filter((bp) => bp !== null) as BlueprintRow[]);
+          });
+        }
+      }
+      setData(rows);
     };
     loadData();
   }, []);
@@ -113,12 +116,14 @@ export default function Home() {
   const openPreview = (imageBase: string) => {
     setModalImageBase(imageBase);
     setModalHasPreview(true);
-    // Only use the .jpg extension
-    setModalSrc(`${imageBase}${extensions[0]}`); 
+    // Start with the single extension, which is extensions[0] (.jpg)
+    setModalSrc(`${imageBase}${extensions[0]}`);
   };
 
   const handleModalImgError = () => {
-    // Since we only check for .jpg now, if it errors, there is no preview.
+    // Since we only look for one extension (.jpg), 
+    // any error means no preview is available.
+    if (!modalImageBase) return;
     setModalHasPreview(false);
   };
 
@@ -136,15 +141,12 @@ export default function Home() {
   const poolOptions = Array.from(new Set(data.map((row) => row.pool))).sort(
     (a, b) => Number(a) - Number(b)
   );
-  
-  // NEW: Function to get text color based on image status
-  const getBlueprintColor = (hasImage: boolean) => (
-    hasImage ? 'lime' : 'red'
-  );
 
   return (
     <div>
-      <Background />
+      {/* Renders only on the client, thanks to next/dynamic */}
+      <Background /> 
+      
       {changelog.length > 0 && (
         <div
           style={{
@@ -266,10 +268,7 @@ export default function Home() {
             <tbody>
               {filtered.map((row, i) => (
                 <tr key={i}>
-                  {/* APPLY COLOR STYLE HERE for Desktop Table */}
-                  <td style={{ color: getBlueprintColor(row.hasImage) }}>
-                    {row.blueprint}
-                  </td>
+                  <td>{row.blueprint}</td>
                   <td>{row.weapon}</td>
                   <td>{row.category}</td>
                   <td>{row.status}</td>
@@ -306,10 +305,7 @@ export default function Home() {
         <div className="mobile-only">
           {filtered.map((row, i) => (
             <div key={i} className="card blueprint-card">
-              {/* APPLY COLOR STYLE HERE for Mobile Card */}
-              <h3 style={{ color: getBlueprintColor(row.hasImage) }}>
-                {row.blueprint}
-              </h3>
+              <h3>{row.blueprint}</h3>
               <p>
                 <strong>Weapon:</strong> {row.weapon}
               </p>
