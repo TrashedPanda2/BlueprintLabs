@@ -475,10 +475,10 @@ export default function Home() {
             </p>
             <ul style={{ listStyle: "none", paddingLeft: 0 }}>
               <li>
-                <strong>Design & Development:</strong> TrashedPanda
+                <strong>Design & Development:</strong> TrashedPanda & Parsegod
               </li>
               <li>
-                <strong>Data Structuring:</strong> Data sourced by Parsedgod
+                <strong>Data Structuring:</strong> Data sourced by Parsegod
               </li>
               <li>
                 <strong>UI/UX:</strong> Inspired by Black Ops 6 Theme
