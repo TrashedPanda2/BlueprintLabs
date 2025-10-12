@@ -34,7 +34,7 @@ const useDebounce = (value: string, delay: number) => {
     ],
     "Author": "parsegod"
   }
-]arse
+]
       clearTimeout(handler);
     };
   }, [value, delay]);
