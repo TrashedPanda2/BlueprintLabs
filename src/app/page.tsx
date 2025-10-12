@@ -48,14 +48,16 @@ const [showUpdateLog, setShowUpdateLog] = useState(false);
     const loadData = async () => {
       const res = await fetch("/weapons.json");
       const json = await res.json();
-      const rows: BlueprintRow[] = [];
+      const rows: BlueprintRow[] = [];
 
-      for (const weapon of json.Weapons) {
-        for (const bp of weapon.Blueprints) {
-          if (!bp.Name || bp.Name === "NOTHING") continue;
-          const weaponName = weapon.Name.toLowerCase().replace(/\s+/g, "-");
-          const imageBase = `/images/${weaponName}/${blueprintFileName}`;
-          rows.push({
+      for (const weapon of json.Weapons) {
+        for (const bp of weapon.Blueprints) {
+          if (!bp.Name || bp.Name === "NOTHING") continue;
+          const weaponName = weapon.Name.toLowerCase().replace(/\s+/g, "-");
+          // My FIX: Applied URL-safe transformation 
+          const blueprintFileName = bp.Name.toLowerCase().replace(/\s+/g, "-");
+          const imageBase = `/images/${weaponName}/${blueprintFileName}`;
+          rows.push({
             weapon: weapon.Name,
             category: categoryMap[weapon.Category],
             blueprint: bp.Name,
