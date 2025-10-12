@@ -266,7 +266,7 @@ export default function Home() {
         </header>
 
         <div className="card">
-          {}
+          {/* Latest update indicator */}
           {latestChangelog && (
             <div
               style={{
@@ -525,7 +525,8 @@ export default function Home() {
             <h2 style={{ marginBottom: "0.5rem", fontSize: "1.2rem" }}>
               How to Pull Blueprints
             </h2>
-            <div
+            <div // ADDED CLASS HERE
+              className="guide-buttons-mobile"
               style={{
                 display: "flex",
                 gap: "0.25rem",
@@ -635,7 +636,7 @@ export default function Home() {
                     <h3 style={{ marginBottom: "0.25rem" }}>
                       {entry.version} — {entry.date}
                     </h3>
-                    {}
+                    {/* Optional Author */}
                     {entry.Author && (
                         <p className="changelog-author">By: {entry.Author}</p>
                     )}
