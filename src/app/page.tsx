@@ -56,7 +56,11 @@ export default function Home() {
         for (const bp of weapon.Blueprints) {
           if (!bp.Name || bp.Name === "NOTHING") continue;
           const weaponName = weapon.Name.toLowerCase().replace(/\s+/g, "-");
-          const imageBase = `/images/${weaponName}/${bp.Name}`;
+          
+          // FIX: Use encodeURIComponent to correctly URL-encode the blueprint name (e.g., convert "RAZOR BURN" to "RAZOR%20BURN")
+          const encodedBlueprintName = encodeURIComponent(bp.Name);
+          const imageBase = `/images/${weaponName}/${encodedBlueprintName}`;
+
           rows.push({
             weapon: weapon.Name,
             category: categoryMap[weapon.Category],
@@ -88,13 +92,9 @@ export default function Home() {
   };
 
   const handleModalImgError = () => {
-    
     if (!modalImageBase) return;
-    console.error(`Failed to load image: ${modalSrc}`);
-
     const currentIndex = extensions.findIndex(
       (ext) => modalSrc === `${modalImageBase}${ext}`
-      
     );
     const nextIndex = currentIndex + 1;
     if (nextIndex < extensions.length) {
