@@ -23,6 +23,8 @@ interface BlueprintRow {
   status: string;
   pool: string;
   imageBase: string;
+  // NEW: Track image existence status
+  hasImage: boolean; 
 }
 
 export default function Home() {
@@ -44,37 +46,57 @@ export default function Home() {
   >([]);
   const [showUpdateLog, setShowUpdateLog] = useState(false);
 
-  const extensions = [".jpg", ".jpeg", ".png"];
+  // Updated to only check for .jpg
+  const extensions = [".jpg"]; 
+
+  // NEW FUNCTION: Check if the .jpg image file exists on the server
+  const checkIfImageExists = async (imageBase: string): Promise<boolean> => {
+    const imageUrl = `${imageBase}${extensions[0]}`;
+    try {
+      const res = await fetch(imageUrl, { method: 'HEAD' });
+      // A 200 (OK) status means the image exists.
+      return res.ok;
+    } catch (error) {
+      // Treat any network or fetch error as the image not existing for the purpose of the UI
+      return false;
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {
       const res = await fetch("/weapons.json");
       const json = await res.json();
-      const rows: BlueprintRow[] = [];
 
-      for (const weapon of json.Weapons) {
-        for (const bp of weapon.Blueprints) {
-          if (!bp.Name || bp.Name === "NOTHING") continue;
+      // Use Promise.all to check all images concurrently for faster loading
+      const blueprintPromises = json.Weapons.flatMap((weapon: any) => 
+        weapon.Blueprints.map(async (bp: any) => {
+          if (!bp.Name || bp.Name === "NOTHING") return null;
           
-          // **FIX 1: Convert weapon name to uppercase and replace spaces with hyphens**
+          // Convert weapon name to uppercase and replace spaces with hyphens
           const weaponName = weapon.Name.toUpperCase().replace(/\s+/g, "-");
           
-          // **FIX 2: Use encodeURIComponent to correctly URL-encode the blueprint name**
+          // Use encodeURIComponent to correctly URL-encode the blueprint name
           const encodedBlueprintName = encodeURIComponent(bp.Name);
 
           const imageBase = `/images/${weaponName}/${encodedBlueprintName}`;
+          
+          // Check image existence
+          const hasImage = await checkIfImageExists(imageBase);
 
-          rows.push({
+          return {
             weapon: weapon.Name,
             category: categoryMap[weapon.Category],
             blueprint: bp.Name,
             status: bp.status,
             pool: bp.Pool,
             imageBase,
-          });
-        }
-      }
-      setData(rows);
+            hasImage, // Include image status
+          };
+        })
+      );
+      
+      const loadedBlueprints = await Promise.all(blueprintPromises);
+      setData(loadedBlueprints.filter((bp) => bp !== null) as BlueprintRow[]);
     };
     loadData();
   }, []);
@@ -91,20 +113,13 @@ export default function Home() {
   const openPreview = (imageBase: string) => {
     setModalImageBase(imageBase);
     setModalHasPreview(true);
-    setModalSrc(`${imageBase}${extensions[0]}`);
+    // Only use the .jpg extension
+    setModalSrc(`${imageBase}${extensions[0]}`); 
   };
 
   const handleModalImgError = () => {
-    if (!modalImageBase) return;
-    const currentIndex = extensions.findIndex(
-      (ext) => modalSrc === `${modalImageBase}${ext}`
-    );
-    const nextIndex = currentIndex + 1;
-    if (nextIndex < extensions.length) {
-      setModalSrc(`${modalImageBase}${extensions[nextIndex]}`);
-    } else {
-      setModalHasPreview(false);
-    }
+    // Since we only check for .jpg now, if it errors, there is no preview.
+    setModalHasPreview(false);
   };
 
   const filtered = data.filter((row) => {
@@ -120,6 +135,11 @@ export default function Home() {
 
   const poolOptions = Array.from(new Set(data.map((row) => row.pool))).sort(
     (a, b) => Number(a) - Number(b)
+  );
+  
+  // NEW: Function to get text color based on image status
+  const getBlueprintColor = (hasImage: boolean) => (
+    hasImage ? 'lime' : 'red'
   );
 
   return (
@@ -246,7 +266,10 @@ export default function Home() {
             <tbody>
               {filtered.map((row, i) => (
                 <tr key={i}>
-                  <td>{row.blueprint}</td>
+                  {/* APPLY COLOR STYLE HERE for Desktop Table */}
+                  <td style={{ color: getBlueprintColor(row.hasImage) }}>
+                    {row.blueprint}
+                  </td>
                   <td>{row.weapon}</td>
                   <td>{row.category}</td>
                   <td>{row.status}</td>
@@ -283,7 +306,10 @@ export default function Home() {
         <div className="mobile-only">
           {filtered.map((row, i) => (
             <div key={i} className="card blueprint-card">
-              <h3>{row.blueprint}</h3>
+              {/* APPLY COLOR STYLE HERE for Mobile Card */}
+              <h3 style={{ color: getBlueprintColor(row.hasImage) }}>
+                {row.blueprint}
+              </h3>
               <p>
                 <strong>Weapon:</strong> {row.weapon}
               </p>
