@@ -1,10 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
-// Import dynamic for client-only rendering
-import dynamic from 'next/dynamic'; 
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import dynamic from 'next/dynamic';
 
-// Component defined inline (or ideally in a separate file)
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
 const BackgroundComponent = () => {
   return (
     <div
@@ -14,7 +28,7 @@ const BackgroundComponent = () => {
         left: 0,
         width: "100%",
         height: "100%",
-        backgroundColor: "#101010", // Very dark background
+        backgroundColor: "#101010",
         backgroundImage: 'radial-gradient(circle at center, rgba(30, 30, 30, 0.8), #101010 70%)',
         backgroundAttachment: 'fixed',
         zIndex: -1,
@@ -23,13 +37,76 @@ const BackgroundComponent = () => {
   );
 };
 
-// FIX: Use next/dynamic with ssr: false to ensure the Background component 
-// is never rendered on the server, eliminating a potential hydration mismatch source.
 const Background = dynamic(() => Promise.resolve(BackgroundComponent), {
   ssr: false,
-  loading: () => null, // Optional: return null while loading on the client
+  loading: () => null,
 });
 
+interface CustomDropdownProps {
+  label: string;
+  options: string[];
+  selectedValue: string;
+  onSelect: (value: string) => void;
+}
+
+const CustomDropdown: React.FC<CustomDropdownProps> = ({
+  label,
+  options,
+  selectedValue,
+  onSelect,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleSelect = (value: string) => {
+    onSelect(value);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="custom-dropdown-container" ref={dropdownRef}>
+      <label>{label}</label>
+      <button
+        className={`custom-dropdown-button ${isOpen ? 'active' : ''}`}
+        onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-controls={`dropdown-list-${label}`}
+        aria-label={`Current selection: ${selectedValue}. Click to change.`}
+      >
+        <span>{selectedValue}</span>
+        <span className="dropdown-arrow"></span>
+      </button>
+      {isOpen && (
+        <ul className="custom-dropdown-options" id={`dropdown-list-${label}`}>
+          {options.map((option) => (
+            <li
+              key={option}
+              className={option === selectedValue ? 'selected' : ''}
+              onClick={() => handleSelect(option)}
+              role="option"
+              aria-selected={option === selectedValue}
+            >
+              {option}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 const categoryMap: Record<string, string> = {
   "0": "Assault Rifle",
@@ -53,12 +130,23 @@ interface BlueprintRow {
   imageBase: string;
 }
 
+interface ChangelogEntry {
+  version: string;
+  date: string;
+  changes: string[];
+  Author?: string; 
+}
+
 export default function Home() {
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [guideSection, setGuideSection] = useState("intro");
 
   const [data, setData] = useState<BlueprintRow[]>([]);
+
   const [search, setSearch] = useState("");
+
+  const debouncedSearch = useDebounce(search, 300); 
+
   const [statusFilter, setStatusFilter] = useState("All");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [poolFilter, setPoolFilter] = useState("All");
@@ -67,19 +155,15 @@ export default function Home() {
   const [modalImageBase, setModalImageBase] = useState<string | null>(null);
   const [modalSrc, setModalSrc] = useState<string>("");
   const [modalHasPreview, setModalHasPreview] = useState(true);
-  const [changelog, setChangelog] = useState<
-    { version: string; date: string; changes: string[] }[]
-  >([]);
-  const [showUpdateLog, setShowUpdateLog] = useState(false);
-  
-  // Removed isClient state and its useEffect, as the Background component 
-  // is now handled via dynamic import with ssr: false.
 
-  // Only look for .jpg extension.
+  const [changelog, setChangelog] = useState<ChangelogEntry[]>([]);
+  const [showUpdateLog, setShowUpdateLog] = useState(false);
+
   const extensions = [".jpg"];
 
   useEffect(() => {
     const loadData = async () => {
+
       const res = await fetch("/weapons.json");
       const json = await res.json();
       const rows: BlueprintRow[] = [];
@@ -116,66 +200,55 @@ export default function Home() {
   const openPreview = (imageBase: string) => {
     setModalImageBase(imageBase);
     setModalHasPreview(true);
-    // Start with the single extension, which is extensions[0] (.jpg)
     setModalSrc(`${imageBase}${extensions[0]}`);
   };
 
   const handleModalImgError = () => {
-    // Since we only look for one extension (.jpg), 
-    // any error means no preview is available.
     if (!modalImageBase) return;
     setModalHasPreview(false);
   };
 
-  const filtered = data.filter((row) => {
-    const matchesSearch =
-      row.blueprint.toLowerCase().includes(search.toLowerCase()) ||
-      row.weapon.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === "All" || row.status === statusFilter;
-    const matchesCategory =
-      categoryFilter === "All" || row.category === categoryFilter;
-    const matchesPool = poolFilter === "All" || row.pool === poolFilter;
-    return matchesSearch && matchesStatus && matchesCategory && matchesPool;
-  });
+  const filtered = useMemo(() => {
+    return data.filter((row) => {
+      const matchesSearch =
+        row.blueprint.toLowerCase().includes(debouncedSearch.toLowerCase()) || 
+        row.weapon.toLowerCase().includes(debouncedSearch.toLowerCase()); 
+      const matchesStatus = statusFilter === "All" || row.status === statusFilter;
+      const matchesCategory =
+        categoryFilter === "All" || row.category === categoryFilter;
+      const matchesPool = poolFilter === "All" || row.pool === poolFilter;
+      return matchesSearch && matchesStatus && matchesCategory && matchesPool;
+    });
+  }, [data, debouncedSearch, statusFilter, categoryFilter, poolFilter]);
 
-  const poolOptions = Array.from(new Set(data.map((row) => row.pool))).sort(
-    (a, b) => Number(a) - Number(b)
-  );
+  const poolOptions = useMemo(() => {
+    return Array.from(new Set(data.map((row) => row.pool))).sort(
+      (a, b) => Number(a) - Number(b)
+    );
+  }, [data]);
+
+  const statusOptions = ["All", "RELEASED", "UNRELEASED", "NOTHING"];
+  const categoryOptions = ["All", ...Object.values(categoryMap)];
+  const poolFilterOptions = ["All", ...poolOptions];
+
+  const handleStatusSelect = useCallback((value: string) => {
+    setStatusFilter(value);
+  }, []);
+
+  const handleCategorySelect = useCallback((value: string) => {
+    setCategoryFilter(value);
+  }, []);
+
+  const handlePoolSelect = useCallback((value: string) => {
+    setPoolFilter(value);
+  }, []);
+
+  const latestChangelog = changelog.length > 0 ? changelog[changelog.length - 1] : null;
 
   return (
     <div>
-      {/* Renders only on the client, thanks to next/dynamic */}
       <Background /> 
-      
-      {changelog.length > 0 && (
-        <div
-          style={{
-            position: "fixed",
-            top: "1rem",
-            left: "1rem",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            zIndex: 100,
-          }}
-        >
-          <span style={{ fontSize: "0.8rem", color: "#ffa500" }}>
-            Version: {changelog[0].version}
-          </span>
-          <div
-            onClick={() => setShowUpdateLog(true)}
-            style={{
-              width: "10px",
-              height: "10px",
-              borderRadius: "50%",
-              backgroundColor: "#ff8800",
-              animation: "pulse 1.5s infinite",
-              cursor: "pointer",
-            }}
-            title="View Update Log"
-          />
-        </div>
-      )}
+
       <div className="container">
         <header>
           <div className="title-block">
@@ -193,66 +266,80 @@ export default function Home() {
         </header>
 
         <div className="card">
+          {}
+          {latestChangelog && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                marginBottom: "0.5rem",
+              }}
+            >
+              <span style={{ fontSize: "0.8rem", color: "#ffa500" }}>
+                Version: {latestChangelog.version}
+              </span>
+              <div
+                onClick={() => setShowUpdateLog(true)}
+                style={{
+                  width: "10px",
+                  height: "10px",
+                  borderRadius: "50%",
+                  backgroundColor: "#ff8800",
+                  animation: "pulse 1.5s infinite",
+                  cursor: "pointer",
+                }}
+                title="View Update Log"
+              />
+            </div>
+          )}
           <strong>
             Site is still in development, please be patient as we update
           </strong>
         </div>
-        {/* Filters */}
         <div className="filters">
           <div className="filter-group full-width">
+            <label htmlFor="search">Search</label>
             <input
               id="search"
               type="text"
-              placeholder="Search for blueprints or weapons..."
-              value={search}
+              placeholder=""
+              value={search} 
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-          <div className="filter-group">
-            <label htmlFor="status">Status Filter</label>
-            <select
-              id="status"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option>All</option>
-              <option>RELEASED</option>
-              <option>UNRELEASED</option>
-              <option>NOTHING</option>
-            </select>
-          </div>
+          <div className="filter-row"> 
+            <div className="filter-group">
+                <CustomDropdown
+                    label="Status Filter"
+                    options={statusOptions}
+                    selectedValue={statusFilter}
+                    onSelect={handleStatusSelect} 
+                />
+            </div>
 
-          <div className="filter-group">
-            <label htmlFor="category">Category Filter</label>
-            <select
-              id="category"
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-            >
-              <option>All</option>
-              {Object.values(categoryMap).map((cat) => (
-                <option key={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
+            <div className="filter-group">
+                <CustomDropdown
+                    label="Category Filter"
+                    options={categoryOptions}
+                    selectedValue={categoryFilter}
+                    onSelect={handleCategorySelect} 
+                />
+            </div>
 
-          <div className="filter-group">
-            <label htmlFor="pool">Pool Filter</label>
-            <select
-              id="pool"
-              value={poolFilter}
-              onChange={(e) => setPoolFilter(e.target.value)}
-            >
-              <option>All</option>
-              {poolOptions.map((pool) => (
-                <option key={pool}>{pool}</option>
-              ))}
-            </select>
+            <div className="filter-group">
+                <CustomDropdown
+                    label="Pool Filter"
+                    options={poolFilterOptions}
+                    selectedValue={poolFilter}
+                    onSelect={handlePoolSelect} 
+                />
+            </div>
           </div>
         </div>
 
-        {/* Desktop Table Version */}
         <div className="table-wrapper desktop-only">
           <table>
             <thead>
@@ -301,7 +388,6 @@ export default function Home() {
           </table>
         </div>
 
-        {/* Mobile Table Version */}
         <div className="mobile-only">
           {filtered.map((row, i) => (
             <div key={i} className="card blueprint-card">
@@ -333,16 +419,31 @@ export default function Home() {
           )}
         </div>
       </div>
-      {/* Blueprint Preview Modal */}
       {modalImageBase && (
         <div className="modal" onClick={() => setModalImageBase(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div 
+            className="modal-content image-preview-modal" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              className="modal-close-btn" 
+              onClick={() => setModalImageBase(null)}
+              title="Close Preview"
+            >
+              &times;
+            </button>
             {modalHasPreview ? (
+
               <img
                 src={modalSrc}
                 onError={handleModalImgError}
                 alt="Blueprint Preview"
-                style={{ maxWidth: "100%", maxHeight: "70vh" }}
+                style={{ 
+                  maxWidth: "100%", 
+                  maxHeight: "100%", 
+                  display: "block", 
+                  margin: "0 auto" 
+                }}
               />
             ) : (
               <p
@@ -364,7 +465,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Credits Modal */}
       {showCredits && (
         <div className="modal" onClick={() => setShowCredits(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -396,7 +496,6 @@ export default function Home() {
           </div>
         </div>
       )}
-      {/* How to Blueprint Pull Modal */}
       {showGuideModal && (
         <div className="modal" onClick={() => setShowGuideModal(false)}>
           <div
@@ -511,7 +610,7 @@ export default function Home() {
               }}
             >
               Update Log
-              {changelog.length > 0 && (
+              {latestChangelog && (
                 <div
                   style={{
                     width: "10px",
@@ -530,11 +629,16 @@ export default function Home() {
                   No updates yet. Stay tuned!
                 </p>
               ) : (
-                changelog.map((entry, i) => (
+
+                [...changelog].reverse().map((entry, i) => (
                   <div key={i} style={{ marginBottom: "1rem" }}>
                     <h3 style={{ marginBottom: "0.25rem" }}>
                       {entry.version} — {entry.date}
                     </h3>
+                    {}
+                    {entry.Author && (
+                        <p className="changelog-author">By: {entry.Author}</p>
+                    )}
                     <ul style={{ paddingLeft: "1rem" }}>
                       {entry.changes.map((change, j) => (
                         <li key={j}>{change}</li>
@@ -544,7 +648,7 @@ export default function Home() {
                 ))
               )}
             </div>
-            <div style={{ textAlign: "center", marginTop: "1rem" }}>
+            <div style={{ textAlign: "center", marginTop: "0.5rem" }}>
               <button className="btn" onClick={() => setShowUpdateLog(false)}>
                 Close
               </button>
