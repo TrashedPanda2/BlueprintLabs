@@ -35,9 +35,9 @@
     "version": "v1.2.3",
     "date": "Oct 13, 2025",
     "changes": [
-      "Edited const weaponName = weapon.Name.toLowerCase().replace(/\s+/g, -).toUpperCase(); so now all images load correctly when previewing",
+      "Edited const weaponName = weapon.Name.toLowerCase().replace(s+g, -).toUpperCase(); so now all images load correctly when previewing",
       "Added IsLoading (Loading Circle) to replace the basic No Results Found Placeholder"
     ],
     "Author": "parsegid"
   }
-],
+]
