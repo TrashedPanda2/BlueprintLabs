@@ -21,7 +21,7 @@
     ],
     "Author": "parsegod"
   },
-   {
+  {
     "version": "v1.2.2",
     "date": "Oct 12, 2025",
     "changes": [
@@ -29,9 +29,8 @@
       "Updated Header of Page"
     ],
     "Author": "TrashedPanda2"
-  }
-],
-   {
+  },
+  {
     "version": "v1.2.3",
     "date": "Oct 13, 2025",
     "changes": [
