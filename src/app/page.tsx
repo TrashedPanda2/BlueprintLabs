@@ -165,6 +165,7 @@ export default function Home() {
   const [guideSection, setGuideSection] = useState("intro");
 
   const [data, setData] = useState<BlueprintRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true); 
 
   const [search, setSearch] = useState("");
 
@@ -186,27 +187,34 @@ export default function Home() {
 
   useEffect(() => {
     const loadData = async () => {
+      setIsLoading(true); 
 
-      const res = await fetch("/weapons.json");
-      const json = await res.json();
-      const rows: BlueprintRow[] = [];
+      try {
+        const res = await fetch("/weapons.json");
+        const json = await res.json();
+        const rows: BlueprintRow[] = [];
 
-      for (const weapon of json.Weapons) {
-        for (const bp of weapon.Blueprints) {
-          if (!bp.Name || bp.Name === "NOTHING") continue;
-          const weaponName = weapon.Name.toLowerCase().replace(/\s+/g, "-").toUpperCase();
-          const imageBase = `/images/${weaponName}/${bp.Name}`;
-          rows.push({
-            weapon: weapon.Name,
-            category: categoryMap[weapon.Category],
-            blueprint: bp.Name,
-            status: bp.status,
-            pool: bp.Pool,
-            imageBase,
-          });
+        for (const weapon of json.Weapons) {
+          for (const bp of weapon.Blueprints) {
+            if (!bp.Name || bp.Name === "NOTHING") continue;
+            const weaponName = weapon.Name.toLowerCase().replace(/\s+/g, " ").toUpperCase();
+            const imageBase = `/images/${weaponName}/${bp.Name}`;
+            rows.push({
+              weapon: weapon.Name,
+              category: categoryMap[weapon.Category],
+              blueprint: bp.Name,
+              status: bp.status,
+              pool: bp.Pool,
+              imageBase,
+            });
+          }
         }
+        setData(rows);
+      } catch (error) {
+        console.error("Failed to load weapon data:", error);
+      } finally {
+        setIsLoading(false); 
       }
-      setData(rows);
     };
     loadData();
   }, []);
@@ -289,7 +297,7 @@ export default function Home() {
         </header>
 
         <div className="card">
-          {/* Latest update indicator */}
+          {}
           {latestChangelog && (
             <div
               style={{
@@ -376,24 +384,33 @@ export default function Home() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((row, i) => (
-                <tr key={i}>
-                  <td>{row.blueprint}</td>
-                  <td>{row.weapon}</td>
-                  <td>{row.category}</td>
-                  <td>{row.status}</td>
-                  <td>{row.pool}</td>
-                  <td>
-                    <button
-                      className="btn"
-                      onClick={() => openPreview(row.imageBase)}
-                    >
-                      Preview
-                    </button>
+              {isLoading ? ( 
+                <tr>
+                  <td colSpan={6} style={{ textAlign: "center", padding: "2rem" }}>
+                    <div className="loader-ring"></div>
                   </td>
                 </tr>
-              ))}
-              {filtered.length === 0 && (
+              ) : (
+                filtered.map((row, i) => (
+                  <tr key={i}>
+                    <td>{row.blueprint}</td>
+                    <td>{row.weapon}</td>
+                    <td>{row.category}</td>
+                    <td>{row.status}</td>
+                    <td>{row.pool}</td>
+                    <td>
+                      <button
+                        className="btn"
+                        onClick={() => openPreview(row.imageBase)}
+                      >
+                        Preview
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+              {}
+              {!isLoading && filtered.length === 0 && (
                 <tr>
                   <td
                     colSpan={6}
@@ -412,30 +429,37 @@ export default function Home() {
         </div>
 
         <div className="mobile-only">
-          {filtered.map((row, i) => (
-            <div key={i} className="card blueprint-card">
-              <h3>{row.blueprint}</h3>
-              <p>
-                <strong>Weapon:</strong> {row.weapon}
-              </p>
-              <p>
-                <strong>Category:</strong> {row.category}
-              </p>
-              <p>
-                <strong>Status:</strong> {row.status}
-              </p>
-              <p>
-                <strong>Pool:</strong> {row.pool}
-              </p>
-              <button
-                className="btn"
-                onClick={() => openPreview(row.imageBase)}
-              >
-                Preview
-              </button>
+          {isLoading ? ( 
+            <div style={{ textAlign: "center", padding: "2rem" }}>
+              <div className="loader-ring"></div>
             </div>
-          ))}
-          {filtered.length === 0 && (
+          ) : (
+            filtered.map((row, i) => (
+              <div key={i} className="card blueprint-card">
+                <h3>{row.blueprint}</h3>
+                <p>
+                  <strong>Weapon:</strong> {row.weapon}
+                </p>
+                <p>
+                  <strong>Category:</strong> {row.category}
+                </p>
+                <p>
+                  <strong>Status:</strong> {row.status}
+                </p>
+                <p>
+                  <strong>Pool:</strong> {row.pool}
+                </p>
+                <button
+                  className="btn"
+                  onClick={() => openPreview(row.imageBase)}
+                >
+                  Preview
+                </button>
+              </div>
+            ))
+          )}
+          {}
+          {!isLoading && filtered.length === 0 && (
             <p style={{ textAlign: "center", padding: "1rem", color: "#ccc" }}>
               No results found.
             </p>
@@ -548,7 +572,7 @@ export default function Home() {
             <h2 style={{ marginBottom: "0.5rem", fontSize: "1.2rem" }}>
               How to Pull Blueprints
             </h2>
-            <div // ADDED CLASS HERE
+            <div 
               className="guide-buttons-mobile"
               style={{
                 display: "flex",
@@ -659,7 +683,7 @@ export default function Home() {
                     <h3 style={{ marginBottom: "0.25rem" }}>
                       {entry.version} — {entry.date}
                     </h3>
-                    {/* Optional Author */}
+                    {}
                     {entry.Author && (
                         <p className="changelog-author">By: {entry.Author}</p>
                     )}
