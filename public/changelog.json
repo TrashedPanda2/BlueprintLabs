@@ -38,5 +38,13 @@
       "Added IsLoading (Loading Circle) to replace the basic No Results Found Placeholder"
     ],
     "Author": "parsegod"
+  },
+   {
+    "version": "v1.2.4",
+    "date": "Oct 14, 2025",
+    "changes": [
+      "Added Season 5 Battlepass and Shop Blueprint Pools"
+    ],
+    "Author": "TrashedPanda2"
   }
 ]
