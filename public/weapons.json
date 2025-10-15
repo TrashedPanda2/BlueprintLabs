@@ -111,9 +111,9 @@
         { "Name": "SCALES", "Pool": "27", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
         { "Name": "PRO REISSUE", "Pool": "28", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
         { "Name": "NOTHING", "Pool": "29", "status": "NOTHING", "Bundle": "TO-BE-FILLED" },
-        { "Name": "NOTHING", "Pool": "30", "status": "NOTHING", "Bundle": "TO-BE-FILLED" },
+        { "Name": "BEFORE AND AFTER", "Pool": "30", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
         { "Name": "OCTANE", "Pool": "31", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
-        { "Name": "BEFORE AND AFTER", "Pool": "32", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
+        { "Name": "OCTANE BLACKELL", "Pool": "32", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
         { "Name": "ADVANCED ALLEGIANCE", "Pool": "33", "status": "RELEASED", "Bundle": "TO-BE-FILLED" }
       ]
     },
@@ -308,7 +308,7 @@
       "Category": "0",
       "Blueprints": [
         { "Name": "PHANTOM FENRIR", "Pool": "1", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
-        { "Name": "UNRELEASED", "Pool": "2", "status": "NOTEXTURE", "Bundle": "TO-BE-FILLED" },
+        { "Name": "ADRENALINE RUSH", "Pool": "2", "status": "NOTEXTURE", "Bundle": "TO-BE-FILLED" },
         { "Name": "NOTHING", "Pool": "3", "status": "NOTHING", "Bundle": "TO-BE-FILLED" },
         { "Name": "NOTHING", "Pool": "4", "status": "NOTHING", "Bundle": "TO-BE-FILLED" },
         { "Name": "BARRELED BARRAGE", "Pool": "5", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
@@ -787,7 +787,7 @@
         { "Name": "WINGFIRE", "Pool": "10", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
         { "Name": "NOTHING", "Pool": "11", "status": "NOTHING", "Bundle": "TO-BE-FILLED" },
         { "Name": "CONTAMINATE", "Pool": "12", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
-        { "Name": "BARRAINA", "Pool": "13", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
+        { "Name": "EXECUTIVE ACTION", "Pool": "13", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
         { "Name": "QUIET DOWN", "Pool": "14", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
         { "Name": "DARK ENDING", "Pool": "15", "status": "RELEASED", "Bundle": "TO-BE-FILLED" },
         { "Name": "NOTHING", "Pool": "16", "status": "NOTHING", "Bundle": "TO-BE-FILLED" },
