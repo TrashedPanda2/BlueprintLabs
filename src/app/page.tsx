@@ -2,8 +2,6 @@
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import dynamic from 'next/dynamic';
-import { AnimatedBackground } from 'animated-backgrounds';
-import { Analytics } from "@vercel/analytics/next"
 
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -13,30 +11,7 @@ const useDebounce = (value: string, delay: number) => {
       setDebouncedValue(value);
     }, delay);
 
-    return () => {[
-  {
-    "version": "v1.2.0",
-    "date": "Oct 11, 2025",
-    "changes": [
-      "Added Update Log for website",
-      "Added How to Guide for WZ and Zombies Pulling",
-      "Refined modal and table layout and added glow"
-    ],
-    "Author": "TrashedPanda2"
-  },
-  {
-    "version": "v1.2.8",
-    "date": "Oct 12, 2025",
-    "changes": [
-      "Updated UI For Desktop & Mobile.",
-      "Fixed image previews",
-      "Edited Credits",
-      "Added {Author} Section to change log",
-      "Edited Version parse to fetch the latest entry instead of the first"
-    ],
-    "Author": "parsegod"
-  }
-]
+    return () => {
       clearTimeout(handler);
     };
   }, [value, delay]);
@@ -46,7 +21,7 @@ const useDebounce = (value: string, delay: number) => {
 
 const Background = dynamic(() => import('./components/GradientBackground'), {
   ssr: false,
-  loading: () => null,
+  loading: () => <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#0d0d1a' }} />,
 });
 
 interface CustomDropdownProps {
