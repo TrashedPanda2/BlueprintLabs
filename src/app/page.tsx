@@ -43,25 +43,7 @@ const useDebounce = (value: string, delay: number) => {
   return debouncedValue;
 };
 
-const BackgroundComponent = () => {
-  return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        backgroundColor: "#101010",
-        backgroundImage: 'radial-gradient(circle at center, rgba(30, 30, 30, 0.8), #101010 70%)',
-        backgroundAttachment: 'fixed',
-        zIndex: -1,
-      }}
-    />
-  );
-};
-
-const Background = dynamic(() => Promise.resolve(BackgroundComponent), {
+const Background = dynamic(() => import('./components/GradientBackground'), {
   ssr: false,
   loading: () => null,
 });
@@ -309,7 +291,7 @@ export default function Home() {
                 marginBottom: "0.5rem",
               }}
             >
-              <span style={{ fontSize: "0.8rem", color: "#ffa500" }}>
+              <span style={{ fontSize: "0.8rem", color: "#66cccc" }}>
                 Version: {latestChangelog.version}
               </span>
               <div
@@ -318,7 +300,7 @@ export default function Home() {
                   width: "10px",
                   height: "10px",
                   borderRadius: "50%",
-                  backgroundColor: "#ff8800",
+                  backgroundColor: "#66b3cc",
                   animation: "pulse 1.5s infinite",
                   cursor: "pointer",
                 }}
@@ -599,7 +581,7 @@ export default function Home() {
                   href="https://www.youtube.com/watch?v=AwFInwhDlus&t=746s"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#ffa500", textDecoration: "underline" }}
+                  style={{ color: "#66cccc", textDecoration: "underline" }}
                 >
                   ▶ Watch Video (YouTube)
                 </a>
@@ -612,7 +594,7 @@ export default function Home() {
                   href="https://www.youtube.com/watch?v=Ou1VjCpFqM8&t"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#ffa500", textDecoration: "underline" }}
+                  style={{ color: "#66cccc", textDecoration: "underline" }}
                 >
                   ▶ Watch Video (YouTube)
                 </a>
@@ -665,7 +647,7 @@ export default function Home() {
                     width: "10px",
                     height: "10px",
                     borderRadius: "50%",
-                    backgroundColor: "#ff8800ff",
+                    backgroundColor: "#66b3cc",
                     animation: "pulse 1.5s infinite",
                   }}
                   title="New updates available"

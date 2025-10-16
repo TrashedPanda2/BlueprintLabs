@@ -46,5 +46,15 @@
       "Added Season 5 Battlepass and Shop Blueprint Pools"
     ],
     "Author": "TrashedPanda2"
+  },
+    {
+    "version": "v1.2.5",
+    "date": "Oct 16, 2025",
+    "changes": [
+      "Updated UI to match theme and styles.",
+      "Updated theme and styles to match animated background",
+      "Added animated background"
+    ],
+    "Author": "TrashedPanda2"
   }
 ]
