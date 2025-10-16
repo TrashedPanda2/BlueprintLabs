@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import dynamic from 'next/dynamic';
+import { AnimatedBackground } from 'animated-backgrounds';
 import { Analytics } from "@vercel/analytics/next"
 
 const useDebounce = (value: string, delay: number) => {
